@@ -1,0 +1,15 @@
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\bin\Debug\net6.0-windows\src.exe
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\bin\Debug\net6.0-windows\src.deps.json
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\bin\Debug\net6.0-windows\src.runtimeconfig.json
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\bin\Debug\net6.0-windows\src.dll
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\bin\Debug\net6.0-windows\src.pdb
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.csproj.AssemblyReference.cache
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.AssemblyInfoInputs.cache
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.AssemblyInfo.cs
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.csproj.CoreCompileInputs.cache
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.dll
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\refint\src.dll
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.pdb
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\src.genruntimeconfig.cache
+C:\Users\kkatfish\Documents\HP-BRMT\HP-BRMT\src\obj\Debug\net6.0-windows\ref\src.dll
