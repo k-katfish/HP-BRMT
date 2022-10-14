@@ -10,7 +10,9 @@ HP if any of this is uncool then please let me know. Also maybe look at the code
 
 # Installation
 
-Run HP_BRMT_Install.exe. It will handle all of the necessary setup necessary.
+Run setup.exe. It will handle all of the necessary setup necessary. 
+
+actually idk if it's gonna be like "installed" or just existing. TBD.
 
 # Tips
 
