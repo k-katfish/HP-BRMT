@@ -1,9 +1,9 @@
 function LoadChangeDateTimePage() {
     Write-Verbose "ChangeDateTimePage.psm1: ChangeDateTimePage called."
     Write-Verbose "ChangeDateTimePage: Unloading Page"
-    unloadPage
+    MainMenuUnloadPage -NoRemoveModules
     Write-Verbose "ChangeDateTimePage: Setting MainMenuPageState"
-    $script:MainMenuPageState = ChangeDateTime
+    $script:MainMenuPageState = "ChangeDateTime"
 
     $script:TitleLabel = New-Object System.Windows.Forms.Label
     $script:TitleLabel.AutoSize = $true

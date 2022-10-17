@@ -2,17 +2,21 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 Import-Module $PSScriptRoot\..\GUI_Helper.psm1
-Import-Module $PSScriptRoot\ChangeDateTime.psm1
+Import-Module $PSScriptRoot\SystemInformation.psm1
 
 function MainMenuLoadPage() {
-    $script:MainMenuPageState = "nostate"
+    $script:MainMenuPageState = "Main"
 
     $script:SystemInformation = initializeNewLinkyButton("System Information")
     $script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
     $script:SystemInformation.Add_Click({
         ##todo
         Write-Verbose "MainMenu.ps1: SystemInformation_Click"
-        ##Import-Module
+        #Import-Module $PSScriptRoot\SystemInformation.psm1
+        $script:MainMenuPageState = "SystemInformation"
+        MainMenuRemovePageItems
+        LoadSystemInformationPage
+        #Remove-Module SystemInformation
     })
     $WindowForm.Controls.Add($script:SystemInformation)
 
@@ -33,24 +37,41 @@ function MainMenuLoadPage() {
     $script:ChangeDateTime.Add_Click({
         # TODO: Add popup/changepage to set the Date and Time
         Write-Verbose "MainMenu.psm1: ChangeDateTime_Click"
+        Import-Module $PSScriptRoot\ChangeDateTime.psm1
         LoadChangeDateTimePage
+        Get-Module ChangeDateTime | Remove-Module
     })
     $WindowForm.Controls.Add($script:ChangeDateTime)
 }
 
+function MainMenuRemovePageItems() {
+    $WindowForm.Controls.Remove($script:SystemInformation)
+    $WindowForm.Controls.Remove($script:SystemDiagnostic)
+    $WindowForm.Controls.Remove($script:UpdateSystemBIOS)
+    $WindowForm.Controls.Remove($script:ChangeDateTime)
+}
+
+function MainMenuReloadPageItems() {
+    Write-Verbose "Reloading MainMenuPage Items"
+    $WindowForm.Controls.AddRange(@($script:SystemInformation, $script:SystemDiagnostic, $script:UpdateSystemBIOS, $script:ChangeDateTime))
+    $script:MainMenuPageState = "Main"
+}
+
 function MainMenuUnloadPage() {
-    Write-Verbose "MainMenu.psm1: unloadPage called. Removing items..."
+    Write-Verbose "MainMenu.psm1: unloadPage called. Removing items for page state $script:MainMenuPageState"
     switch ($script:MainMenuPageState){
-        "nostate" {
-            $WindowForm.Controls.Remove($script:SystemInformation)
-            $WindowForm.Controls.Remove($script:SystemDiagnostic)
-            $WindowForm.Controls.Remove($script:UpdateSystemBIOS)
-            $WindowForm.Controls.Remove($script:ChangeDateTime)
+        "Main" {
+            MainMenuRemovePageItems
         }
         "ChangeDateTime" {
             UnloadChangeDateTimePage
         }
-
+        "SystemInformation" {
+            UnloadSystemInformationPage
+        }
     }
-    Remove-Module ChangeDateTime
+
+    Write-Verbose "MainMenu.psm1: Removing imported modules..."
+
+    Remove-Module SystemInformation
 }

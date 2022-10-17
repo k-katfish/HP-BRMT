@@ -58,6 +58,7 @@ function switchPage($Page) {
             Import-Module $PSScriptRoot\UEFIMenu\UEFIMenu.psm1
             UEFIMenuLoadPage
         }
+        "nostate" { }
     }
 
     $script:PageState = $Page
@@ -90,4 +91,23 @@ function initializeNewEditableText($Text) {
     $TextBoxObject.Text = $Text
     
     return $TextBoxObject
+}
+
+function initializeNewStaticText($Text, $Location) {
+    $LabelObject = New-Object System.Windows.Forms.Label
+    $LabelObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
+    $LabelObject.AutoSize = $true
+    $LabelObject.Text = $Text
+
+    return $LabelObject
+}
+
+function initializeNewBackButton() {
+    $BackButton = New-Object System.Windows.Forms.Button
+    $BackButton.AutoSize = $true #.Size = New-Object System.Drawing.Size(50, 100) #New-Object System.Drawing.Size(150, 50)
+    $BackButton.Font = New-Object System.Drawing.Font("Arial", 10)
+    $BackButton.Location = New-Object System.Drawing.Point(5, 110)
+    $BackButton.Text = "<- Back"
+    
+    return $BackButton
 }
