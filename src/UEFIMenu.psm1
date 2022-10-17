@@ -2,23 +2,21 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 function loadPage() {
-    $SystemInformation = New-Object System.Windows.Forms.Button
-    $SystemInformation.FlatAppearance.BorderSize = 0
-    $SystemInformation.FlatStyle = "Flat"
-    $SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
-    $SystemInformation.AutoSize = $true
-    $SystemInformation.Text = "## UEFI MENU ##"
-    $SystemInformation.Add_Click({
+    $script:SystemInformation = New-Object System.Windows.Forms.Button
+    $script:SystemInformation.FlatAppearance.BorderSize = 0
+    $script:SystemInformation.FlatStyle = "Flat"
+    $script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
+    $script:SystemInformation.AutoSize = $true
+    $script:SystemInformation.Text = "## UEFI MENU ##"
+    $script:SystemInformation.Add_Click({
         ##todo
-        Write-Host "SystemInformation_Click"
+        Write-Host "UEFI_Click"
     })
-    $WindowForm.Controls.Add($SystemInformation)
+    $WindowForm.Controls.Add($script:SystemInformation)
 
 
 }
 
 function unloadPage() {
-    $WindowForm.Controls.Remove($SystemInformation)
+    $WindowForm.Controls.Remove($script:SystemInformation)
 }
-
-$WindowForm.Controls.AddRange(@($MainMenuButton, $SecurityMenuButton, $AdvancedMenuButton, $UEFIMenuButton))

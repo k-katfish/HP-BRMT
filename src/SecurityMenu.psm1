@@ -2,23 +2,21 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 function loadPage() {
-    $SystemInformation = New-Object System.Windows.Forms.Button
-    $SystemInformation.FlatAppearance.BorderSize = 0
-    $SystemInformation.FlatStyle = "Flat"
-    $SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
-    $SystemInformation.AutoSize = $true
-    $SystemInformation.Text = "## Security Menu ##"
-    $SystemInformation.Add_Click({
+    $script:SecurityMenuInfoPlaceholder = New-Object System.Windows.Forms.Button
+    $script:SecurityMenuInfoPlaceholder.FlatAppearance.BorderSize = 0
+    $script:SecurityMenuInfoPlaceholder.FlatStyle = "Flat"
+    $script:SecurityMenuInfoPlaceholder.Location = New-Object System.Drawing.Point(50, 130)
+    $script:SecurityMenuInfoPlaceholder.AutoSize = $true
+    $script:SecurityMenuInfoPlaceholder.Text = "## Security Menu ##"
+    $script:SecurityMenuInfoPlaceholder.Add_Click({
         ##todo
-        Write-Host "SystemInformation_Click"
+        Write-Host "Security_Click"
     })
-    $WindowForm.Controls.Add($SystemInformation)
+    $WindowForm.Controls.Add($script:SecurityMenuInfoPlaceholder)
 
 
 }
 
 function unloadPage() {
-    $WindowForm.Controls.Remove($SystemInformation)
+    $WindowForm.Controls.Remove($script:SecurityMenuInfoPlaceholder)
 }
-
-$WindowForm.Controls.AddRange(@($MainMenuButton, $SecurityMenuButton, $AdvancedMenuButton, $UEFIMenuButton))

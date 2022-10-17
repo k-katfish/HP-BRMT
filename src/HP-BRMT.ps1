@@ -1,9 +1,19 @@
+[cmdletbinding()]
 param(
     [Switch][Alias("h")]$Help
 )
 
 try {
-    Get-HPBIOSVersion
+    Write-Verbose "Testing if HP Bios has a password on THIS PC ($env:COMPUTERNAME)"
+    if (Get-HPBIOSSetupPasswordIsSet) {
+        Write-Verbose "HP BIOS Password is set. Asking user for the password..."
+        $script:SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
+        $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for THIS PC ($env:COMPUTERNAME)", "HP BIOS Setup password required") 
+        Write-Verbose "User entered $script:SetupPw"
+        Write-Information "User entered $script:SetupPw"
+    } else {
+        Write-Verbose "HP BIOS has no password setup on this PC"
+    }
 } catch {
     if ($_ -like "*is not recognized*") {
         & "$PSScriptRoot\resources\hp-cmsl-1.6.8.exe" /VERYSILENT
@@ -21,7 +31,7 @@ $WindowForm.MaximizeBox = $false
 
 # Main/Security/Advanced/UEFI Drivers Region
 
-$PageState = "nostate"
+$script:PageState = "nostate"
 
 $MainMenuButton = New-Object System.Windows.Forms.Button
 $MainMenuButton.Location = New-Object System.Drawing.Point(50, 50)
@@ -73,9 +83,9 @@ $MainMenuButton.Add_Click({
         "nostate" {}
     }
 
-    $PageState = "Main"
+    $script:PageState = "Main"
 
-    Import-Module $PSScriptRoot\$($PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -83,10 +93,11 @@ $SecurityMenuButton.Add_Click({
     $SecurityMenuButton.Enabled = $false
     $SecurityMenuButton.FlatStyle = "Flat"
 
+    Write-Verbose "Calling unloadPage from wherever it came from..."
     unloadPage
 
-    switch ($PageState) {
-        "Main" {
+    switch ($script:PageState) {
+        Main {
             Remove-Module MainMenu
             $MainMenuButton.Enabled = $true
             $MainMenuButton.FlatStyle = "Standard"
@@ -103,9 +114,9 @@ $SecurityMenuButton.Add_Click({
         }
     }
 
-    $PageState = "Security"
+    $script:PageState = "Security"
 
-    Import-Module $PSScriptRoot\$($PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -115,7 +126,7 @@ $AdvancedMenuButton.Add_Click({
 
     unloadPage
 
-    switch ($PageState) {
+    switch ($script:PageState) {
         "Main" {
             Remove-Module MainMenu
             $MainMenuButton.Enabled = $true
@@ -133,9 +144,9 @@ $AdvancedMenuButton.Add_Click({
         }
     }
 
-    $PageState = "Advanced"
+    $script:PageState = "Advanced"
 
-    Import-Module $PSScriptRoot\$($PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -146,7 +157,7 @@ $UEFIMenuButton.Add_Click({
     
     unloadPage
 
-    switch ($PageState) {
+    switch ($script:PageState) {
         "Main" {
             Remove-Module MainMenu
             $MainMenuButton.Enabled = $true
@@ -164,9 +175,9 @@ $UEFIMenuButton.Add_Click({
         }
     }
 
-    $PageState = "UEFI"
+    $script:PageState = "UEFI"
 
-    Import-Module $PSScriptRoot\$($PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
     loadPage
 })
 
