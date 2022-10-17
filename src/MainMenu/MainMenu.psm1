@@ -4,6 +4,8 @@ Add-Type -AssemblyName System.Drawing
 Import-Module $PSScriptRoot\..\GUI_Helper.psm1
 
 function loadPage() {
+    $script:MainMenuPageState = nostate
+
     $script:SystemInformation = initializeNewLinkyButton("System Information")
     $script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
     $script:SystemInformation.Add_Click({
@@ -36,8 +38,43 @@ function loadPage() {
 
 function unloadPage() {
     Write-Verbose "MainMenu.psm1: unloadPage called. Removing items..."
-    $WindowForm.Controls.Remove($script:SystemInformation)
-    $WindowForm.Controls.Remove($script:SystemDiagnostic)
-    $WindowForm.Controls.Remove($script:UpdateSystemBIOS)
-    $WindowForm.Controls.Remove($script:ChangeDateTime)
+    switch ($script:MainMenuPageState){
+        nostate {
+            $WindowForm.Controls.Remove($script:SystemInformation)
+            $WindowForm.Controls.Remove($script:SystemDiagnostic)
+            $WindowForm.Controls.Remove($script:UpdateSystemBIOS)
+            $WindowForm.Controls.Remove($script:ChangeDateTime)
+        }
+
+    }
+}
+
+function ChangeDateTimePage() {
+    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: called."
+    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: Unloading Page"
+    unloadPage
+    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: Setting MainMenuPageState"
+    $script:MainMenuPageState = ChangeDateTime
+
+    $TitleLabel = New-Object System.Windows.Forms.Label
+    $TitleLabel.AutoSize = $true
+    $TitleLabel.Text = "Change Date and Time"
+    $TitleLabel.Location = New-Object System.Drawing.Point(50, 130)
+
+    $SetDateLabel = New-Object System.Windows.Forms.Label
+    $SetDateLabel.AutoSize = $true
+    $SetDateLabel.Text = "Set Date (MM/DD/YYYY)"
+    $SetDateLabel.Location = New-Object System.Drawing.Point(50, 180)
+    
+    $SetTimeLabel = New-Object System.Windows.Forms.Label
+    $SetTimeLabel.AutoSize = $true
+    $SetTimeLabel.Text = "Set Time (HH:MM):"
+    $SetTimeLabel.Location = New-Object System.Drawing.Point(50, 200)
+
+    $DayText = initializeNewEditableText(Get-Date -ComputerName $ComputerName -Format "dd")
+
+
+    $WindowForm.Controls.AddRange(@($TitleLabel, $SetDateLabel, $SetTimeLabel, $DayText))
+   # 06 / 04 / 2018
+
 }

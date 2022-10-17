@@ -10,3 +10,12 @@ function initializeNewLinkyButton($Text) {
 
     return $ButtonObject
 }
+
+function initializeNewEditableText($Text) {
+    $TextBoxObject = New-Object System.Windows.Forms.TextBox
+    $TextBoxObject.BorderStyle = "None" #?
+    $TextBoxObject.AutoSize = $true
+    $TextBoxObject.Text = $Text
+    
+    return $TextBoxObject
+}
