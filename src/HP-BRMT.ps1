@@ -1,18 +1,19 @@
 [cmdletbinding()]
 param(
-    [Switch][Alias("h")]$Help
+    [Switch][Alias("h")]$Help,
+    [String]$ComputerName = $env:COMPUTERNAME
 )
 
 try {
-    Write-Verbose "Testing if HP Bios has a password on THIS PC ($env:COMPUTERNAME)"
-    if (Get-HPBIOSSetupPasswordIsSet) {
+    Write-Verbose "Testing if HP Bios has a password on $ComputerName"
+    if (Get-HPBIOSSetupPasswordIsSet -ComputerName $ComputerName) {
         Write-Verbose "HP BIOS Password is set. Asking user for the password..."
         $script:SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
-        $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for THIS PC ($env:COMPUTERNAME)", "HP BIOS Setup password required") 
+        $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $ComputerName", "HP BIOS Setup password required") 
         Write-Verbose "User entered $script:SetupPw"
         Write-Information "User entered $script:SetupPw"
     } else {
-        Write-Verbose "HP BIOS has no password setup on this PC"
+        Write-Verbose "HP BIOS has no password setup on $ComputerName"
     }
 } catch {
     if ($_ -like "*is not recognized*") {
@@ -85,7 +86,7 @@ $MainMenuButton.Add_Click({
 
     $script:PageState = "Main"
 
-    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -116,7 +117,7 @@ $SecurityMenuButton.Add_Click({
 
     $script:PageState = "Security"
 
-    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -146,7 +147,7 @@ $AdvancedMenuButton.Add_Click({
 
     $script:PageState = "Advanced"
 
-    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
     loadPage
 })
 
@@ -177,11 +178,23 @@ $UEFIMenuButton.Add_Click({
 
     $script:PageState = "UEFI"
 
-    Import-Module $PSScriptRoot\$($script:PageState)Menu.psm1
+    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
     loadPage
 })
 
 $MainMenuButton.PerformClick()
 $WindowForm.Controls.AddRange(@($MainMenuButton, $SecurityMenuButton, $AdvancedMenuButton, $UEFIMenuButton))
+
+$RightClickMenu = New-Object System.Windows.Forms.ContextMenu
+
+$ReloadModules = New-Object System.Windows.Forms.ToolStripMenuItem
+$ReloadModules.Text = "Reload Modules"
+$ReloadModules.Add_Click({
+    Remove-Module "$($script:PageState)Menu"
+    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
+})
+
+$RightClickMenu.MenuItems.Add($ReloadModules)
+$WindowForm.ContextMenu = $RightClickMenu
 
 $WindowForm.ShowDialog()
