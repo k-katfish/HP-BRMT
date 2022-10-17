@@ -4,22 +4,35 @@ param(
     [String]$ComputerName = $env:COMPUTERNAME
 )
 
-try {
-    Write-Verbose "Testing if HP Bios has a password on $ComputerName"
-    if (Get-HPBIOSSetupPasswordIsSet -ComputerName $ComputerName) {
-        Write-Verbose "HP BIOS Password is set. Asking user for the password..."
-        $script:SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
-        $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $ComputerName", "HP BIOS Setup password required") 
-        Write-Verbose "User entered $script:SetupPw"
-        Write-Information "User entered $script:SetupPw"
-    } else {
-        Write-Verbose "HP BIOS has no password setup on $ComputerName"
-    }
-} catch {
-    if ($_ -like "*is not recognized*") {
-        & "$PSScriptRoot\resources\hp-cmsl-1.6.8.exe" /VERYSILENT
+$script:ComputerName = $ComputerName
+
+function initializeComputerConnection{
+    Write-Verbose "Initializing Connection to $script:ComputerName"
+    try {
+        Write-Verbose "Testing if HP Bios has a password on $script:ComputerName"
+        if (Get-HPBIOSSetupPasswordIsSet -ComputerName $script:ComputerName) {
+            Write-Verbose "HP BIOS Password is set. Asking user for the password..."
+            $script:SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
+            $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $script:ComputerName", "HP BIOS Setup password required") 
+            Write-Verbose "User entered $script:SetupPw"
+            Write-Information "User entered $script:SetupPw"
+        } else {
+            Write-Verbose "HP BIOS has no password setup on $script:ComputerName"
+        }
+    } catch {
+        if ($_ -like "*is not recognized*") {
+            & "$PSScriptRoot\resources\hp-cmsl-1.6.8.exe" /VERYSILENT
+            initializeComputerConnection
+        }
     }
 }
+
+function initializeResources() {
+    if (Get-Module GUI_Helper) { Write-Verbose "GUI_Helper loaded, unloading..."; Remove-Module GUI_Helper }
+    Import-Module $PSScriptRoot\GUI_Helper.psm1
+}
+
+initializeResources
 
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
@@ -32,169 +45,68 @@ $WindowForm.MaximizeBox = $false
 
 # Main/Security/Advanced/UEFI Drivers Region
 
-$script:PageState = "nostate"
+$MainMenuButton = initializeNewBigButton "Main" (50, 50) (100, 50)
+#$MainMenuButton.Location = New-Object System.Drawing.Point(50, 50)
+#$MainMenuButton.Size = New-Object System.Drawing.Size(100, 50)
+#$MainMenuButton.Font = New-Object System.Drawing.Font("Arial", 15)
+#$MainMenuButton.Text = "Main"
+$MainMenuButton.Add_Click({ switchPage "Main" })
 
-$MainMenuButton = New-Object System.Windows.Forms.Button
-$MainMenuButton.Location = New-Object System.Drawing.Point(50, 50)
-$MainMenuButton.Size = New-Object System.Drawing.Size(100, 50)
-$MainMenuButton.Font = New-Object System.Drawing.Font("Arial", 15)
-$MainMenuButton.Text = "Main"
+$SecurityMenuButton = initializeNewBigButton "Security" (150, 50) (150, 50)
+$SecurityMenuButton.Add_Click({ switchPage "Security" })
 
-$SecurityMenuButton = New-Object System.Windows.Forms.Button
-$SecurityMenuButton.Location = New-Object System.Drawing.Point(150, 50)
-$SecurityMenuButton.Size = New-Object System.Drawing.Size(150, 50)
-$SecurityMenuButton.Font = New-Object System.Drawing.Font("Arial", 15)
-$SecurityMenuButton.Text = "Security"
 
-$AdvancedMenuButton = New-Object System.Windows.Forms.Button
-$AdvancedMenuButton.Location = New-Object System.Drawing.Point(300, 50)
-$AdvancedMenuButton.Size = New-Object System.Drawing.Size(150, 50)
-$AdvancedMenuButton.Font = New-Object System.Drawing.Font("Arial", 15)
-$AdvancedMenuButton.Text = "Advanced"
+$AdvancedMenuButton = initializeNewBigButton "Advanced" (300, 50) (150, 50)
+$AdvancedMenuButton.Add_Click({ switchPage "Advanced" })
 
-$UEFIMenuButton = New-Object System.Windows.Forms.Button
-$UEFIMenuButton.Location = New-Object System.Drawing.Point(450, 50)
-$UEFIMenuButton.Size = New-Object System.Drawing.Size(200, 50)
-$UEFIMenuButton.Font = New-Object System.Drawing.Font("Arial", 15)
-$UEFIMenuButton.Text = "UEFI Drivers"
+$UEFIMenuButton = initializeNewBigButton "UEFI Drivers" (450, 50) (200, 50)
+$UEFIMenuButton.Add_Click({ switchPage "UEFI" })
 
-$MainMenuButton.Add_Click({
-    $MainMenuButton.Enabled = $false
-    $MainMenuButton.FlatStyle = "Flat"
+$ComputerNameButton = initializeNewBigButton "$script:ComputerName" (600, 50) (200, 50)
+$ComputerNameButton.FlatAppearance.BorderSize = 0
+$ComputerNameButton.FlatStyle = "Flat"
+$ComputerNameButton.Add_Click({
+    $script:ComputerName = [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
+    $script:ComputerName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter the name of the computer to connect to", "Connect to another computer")
 
-    switch ($PageState) {
-        "Security" {
-            unloadPage
-            Remove-Module SecurityMenu
-            $SecurityMenuButton.Enabled = $true
-            $SecurityMenuButton.FlatStyle = "Standard"
-        }
-        "Advanced" {
-            unloadPage
-            Remove-Module AdvancedMenu
-            $AdvancedMenuButton.Enabled = $true
-            $AdvancedMenuButton.FlatStyle = "Standard"
-        }
-        "UEFI" {
-            unloadPage
-            Remove-Module UEFIMenu
-            $UEFIMenuButton.Enabled = $true
-            $UEFIMenuButton.FlatStyle = "Standard"
-        }
-        "nostate" {}
-    }
+    $ComputerNameButton.Text = "$script:ComputerName"
 
-    $script:PageState = "Main"
+    initializeComputerConnection
 
-    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
-    loadPage
+    initializeResources
+    switchPage "Main"
 })
 
-$SecurityMenuButton.Add_Click({
-    $SecurityMenuButton.Enabled = $false
-    $SecurityMenuButton.FlatStyle = "Flat"
+#$MainMenuButton.PerformClick()
+$WindowForm.Controls.AddRange(@($MainMenuButton, $SecurityMenuButton, $AdvancedMenuButton, $UEFIMenuButton, $ComputerNameButton))
 
-    Write-Verbose "Calling unloadPage from wherever it came from..."
-    unloadPage
-
-    switch ($script:PageState) {
-        Main {
-            Remove-Module MainMenu
-            $MainMenuButton.Enabled = $true
-            $MainMenuButton.FlatStyle = "Standard"
-        }
-        "Advanced" {
-            Remove-Module AdvancedMenu
-            $AdvancedMenuButton.Enabled = $true
-            $AdvancedMenuButton.FlatStyle = "Standard"
-        }
-        "UEFI" {
-            Remove-Module UEFIMenu
-            $UEFIMenuButton.Enabled = $true
-            $UEFIMenuButton.FlatStyle = "Standard"
-        }
-    }
-
-    $script:PageState = "Security"
-
-    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
-    loadPage
-})
-
-$AdvancedMenuButton.Add_Click({
-    $AdvancedMenuButton.Enabled = $false
-    $AdvancedMenuButton.FlatStyle = "Flat"
-
-    unloadPage
-
-    switch ($script:PageState) {
-        "Main" {
-            Remove-Module MainMenu
-            $MainMenuButton.Enabled = $true
-            $MainMenuButton.FlatStyle = "Standard"
-        }
-        "Security" {
-            Remove-Module SecurityMenu
-            $SecurityMenuButton.Enabled = $true
-            $SecurityMenuButton.FlatStyle = "Standard"
-        }
-        "UEFI" {
-            Remove-Module UEFIMenu
-            $UEFIMenuButton.Enabled = $true
-            $UEFIMenuButton.FlatStyle = "Standard"
-        }
-    }
-
-    $script:PageState = "Advanced"
-
-    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
-    loadPage
-})
-
-
-$UEFIMenuButton.Add_Click({
-    $UEFIMenuButton.Enabled = $false
-    $UEFIMenuButton.FlatStyle = "Flat"
-    
-    unloadPage
-
-    switch ($script:PageState) {
-        "Main" {
-            Remove-Module MainMenu
-            $MainMenuButton.Enabled = $true
-            $MainMenuButton.FlatStyle = "Standard"
-        }
-        "Security" {
-            Remove-Module SecurityMenu
-            $SecurityMenuButton.Enabled = $true
-            $SecurityMenuButton.FlatStyle = "Standard"
-        }
-        "Advanced" {
-            Remove-Module AdvancedMenu
-            $AdvancedMenuButton.Enabled = $true
-            $AdvancedMenuButton.FlatStyle = "Standard"
-        }
-    }
-
-    $script:PageState = "UEFI"
-
-    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
-    loadPage
-})
-
-$MainMenuButton.PerformClick()
-$WindowForm.Controls.AddRange(@($MainMenuButton, $SecurityMenuButton, $AdvancedMenuButton, $UEFIMenuButton))
-
-$RightClickMenu = New-Object System.Windows.Forms.ContextMenu
+$RightClickMenu = New-Object System.Windows.Forms.ContextMenuStrip
 
 $ReloadModules = New-Object System.Windows.Forms.ToolStripMenuItem
-$ReloadModules.Text = "Reload Modules"
+$ReloadModules.Text = "Reinitialize Program"
 $ReloadModules.Add_Click({
-    Remove-Module "$($script:PageState)Menu"
-    Import-Module $PSScriptRoot\$($script:PageState)Menu\$($script:PageState)Menu.psm1
+    initializeComputerConnection
+    initializeResources
+    switchPage "Main"
 })
 
-$RightClickMenu.MenuItems.Add($ReloadModules)
-$WindowForm.ContextMenu = $RightClickMenu
+$ForceReloadAllModules = New-Object System.Windows.Forms.ToolStripMenuItem
+$ForceReloadAllModules.Text = "Reload all modules"
+$ForceReloadAllModules.Add_Click({
+    if (Get-Module GUI_Helper) { Remove-Module GUI_Helper }
+    if (Get-Module MainMenu) { Remove-Module MainMenu }
+    if (Get-Module ChangeDateTime ) { Remove-Module ChangeDateTime }
+    if (Get-Module SecurityMenu) { Remove-Module SecurityMenu }
+    if (Get-Module AdvancedMenu) { Remove-Module AdvancedMenu }
+    if (Get-Module UEFIMenu) { Remove-Module UEFIMenu }
+
+    initializeComputerConnection
+
+    initializeResources
+    switchPage "Main"
+})
+
+$RightClickMenu.Items.Add($ReloadModules)
+$WindowForm.ContextMenuStrip = $RightClickMenu
 
 $WindowForm.ShowDialog()

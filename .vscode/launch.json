@@ -9,7 +9,7 @@
             "type": "PowerShell",
             "request": "launch",
             "script": "${workspaceFolder}\\src\\HP-BRMT.ps1",
-            "args": ["-Verbose", "-Debug", "-ComputerName Apache"],
+            "args": ["-Verbose", "-Debug", "-ComputerName Freeman"],
             "cwd": "${workspaceFolder}"
         }
     ]

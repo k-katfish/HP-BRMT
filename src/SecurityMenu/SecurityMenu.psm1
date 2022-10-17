@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-function loadPage() {
+function SecurityMenuLoadPage() {
     $script:SecurityMenuInfoPlaceholder = New-Object System.Windows.Forms.Button
     $script:SecurityMenuInfoPlaceholder.FlatAppearance.BorderSize = 0
     $script:SecurityMenuInfoPlaceholder.FlatStyle = "Flat"
@@ -17,6 +17,6 @@ function loadPage() {
 
 }
 
-function unloadPage() {
+function SecurityMenuUnloadPage() {
     $WindowForm.Controls.Remove($script:SecurityMenuInfoPlaceholder)
 }

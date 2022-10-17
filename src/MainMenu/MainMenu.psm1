@@ -2,9 +2,10 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 Import-Module $PSScriptRoot\..\GUI_Helper.psm1
+Import-Module $PSScriptRoot\ChangeDateTime.psm1
 
-function loadPage() {
-    $script:MainMenuPageState = nostate
+function MainMenuLoadPage() {
+    $script:MainMenuPageState = "nostate"
 
     $script:SystemInformation = initializeNewLinkyButton("System Information")
     $script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
@@ -32,49 +33,24 @@ function loadPage() {
     $script:ChangeDateTime.Add_Click({
         # TODO: Add popup/changepage to set the Date and Time
         Write-Verbose "MainMenu.psm1: ChangeDateTime_Click"
+        LoadChangeDateTimePage
     })
     $WindowForm.Controls.Add($script:ChangeDateTime)
 }
 
-function unloadPage() {
+function MainMenuUnloadPage() {
     Write-Verbose "MainMenu.psm1: unloadPage called. Removing items..."
     switch ($script:MainMenuPageState){
-        nostate {
+        "nostate" {
             $WindowForm.Controls.Remove($script:SystemInformation)
             $WindowForm.Controls.Remove($script:SystemDiagnostic)
             $WindowForm.Controls.Remove($script:UpdateSystemBIOS)
             $WindowForm.Controls.Remove($script:ChangeDateTime)
         }
+        "ChangeDateTime" {
+            UnloadChangeDateTimePage
+        }
 
     }
-}
-
-function ChangeDateTimePage() {
-    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: called."
-    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: Unloading Page"
-    unloadPage
-    Write-Verbose "MainMenu.psm1: ChangeDateTimePage: Setting MainMenuPageState"
-    $script:MainMenuPageState = ChangeDateTime
-
-    $TitleLabel = New-Object System.Windows.Forms.Label
-    $TitleLabel.AutoSize = $true
-    $TitleLabel.Text = "Change Date and Time"
-    $TitleLabel.Location = New-Object System.Drawing.Point(50, 130)
-
-    $SetDateLabel = New-Object System.Windows.Forms.Label
-    $SetDateLabel.AutoSize = $true
-    $SetDateLabel.Text = "Set Date (MM/DD/YYYY)"
-    $SetDateLabel.Location = New-Object System.Drawing.Point(50, 180)
-    
-    $SetTimeLabel = New-Object System.Windows.Forms.Label
-    $SetTimeLabel.AutoSize = $true
-    $SetTimeLabel.Text = "Set Time (HH:MM):"
-    $SetTimeLabel.Location = New-Object System.Drawing.Point(50, 200)
-
-    $DayText = initializeNewEditableText(Get-Date -ComputerName $ComputerName -Format "dd")
-
-
-    $WindowForm.Controls.AddRange(@($TitleLabel, $SetDateLabel, $SetTimeLabel, $DayText))
-   # 06 / 04 / 2018
-
+    Remove-Module ChangeDateTime
 }

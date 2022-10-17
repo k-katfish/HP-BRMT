@@ -1,7 +1,7 @@
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-function loadPage() {
+function UEFIMenuLoadPage() {
     $script:SystemInformation = New-Object System.Windows.Forms.Button
     $script:SystemInformation.FlatAppearance.BorderSize = 0
     $script:SystemInformation.FlatStyle = "Flat"
@@ -17,6 +17,6 @@ function loadPage() {
 
 }
 
-function unloadPage() {
+function UEFIMenuUnloadPage() {
     $WindowForm.Controls.Remove($script:SystemInformation)
 }
