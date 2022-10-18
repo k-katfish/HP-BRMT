@@ -4,6 +4,7 @@ $script:PSCredentialObject
 
 Add-Type -AssemblyName System.Windows.Forms
 
+if (Get-Module GUI_Helper) { Remove-Module GUI_Helper }
 Import-Module $PSScriptRoot\GUI_Helper.psm1
 
 function Get-StoredCimSession {

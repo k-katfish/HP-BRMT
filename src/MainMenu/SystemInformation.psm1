@@ -3,7 +3,6 @@ Import-Module $PSScriptRoot\..\SessionHelper.psm1
 function LoadSystemInformationPage() {
     Write-Verbose "SystemInformation.psm1: LoadSystemInformationPage called."
     Write-Verbose "LoadSystemInformationPage: Setting MainMenuPageState"
-    $script:MainMenuPageState = "SystemInformation"
 
     $script:TitleLabel = initializeNewStaticText "SYSTEM INFORMATION for $((Get-StoredCimSession).ComputerName)" (50, 150)
 
@@ -16,7 +15,7 @@ function LoadSystemInformationPage() {
     $script:ServiceBar = initializeNewStaticText "SERVICE ------------------------------------------------------------------------" (50, 300)
     
     $script:BornOnDateLabel = initializeNewStaticText "Born on Date" (50, 340)
-    $Script:BornOnDateText = initializeNewStaticText "" (200, 320)
+    $Script:BornOnDateText = initializeNewStaticText "$(Get-HPBiosSettingValue -CimSession (Get-StoredCimSession) -Name "Born On Date")" (200, 340)
 
     $script:SerialNumberLabel = initializeNewStaticText "Serial Number" (50, 360)
     $script:SerialNumberText = initializeNewStaticText "$(Get-HPDeviceSerialNumber -CimSession (Get-StoredCimSession))" (200, 360)
@@ -32,17 +31,16 @@ function LoadSystemInformationPage() {
         UnloadSystemInformationPage
         Import-Module $PSScriptRoot\MainMenu.psm1 -Function MainMenuReloadPageItems
         MainMenuReloadPageItems
-        #Remove-Module MainMenu -Function MainMenuReloadPageItems
     })
 
     $WindowForm.Controls.AddRange(@($script:BackButton, $script:TitleLabel, 
         $script:ProductNameLabel, $script:ProductNameText
         $script:MemorySizeLabel, $script:MemorySizeText
         $script:ServiceBar
+        $script:BornOnDateLabel, $Script:BornOnDateText
         $script:SerialNumberLabel, $script:SerialNumberText
         $script:SKUNumberLabel, $script:SKUNumberText
         $script:UUIDLabel, $script:UUIDText))
-   # 06 / 04 / 2018
 }
 
 function UnloadSystemInformationPage() {
@@ -53,6 +51,8 @@ function UnloadSystemInformationPage() {
     $WindowForm.Controls.Remove($script:MemorySizeLabel)
     $WindowForm.Controls.Remove($script:MemorySizeText)
     $WindowForm.Controls.Remove($script:ServiceBar)
+    $WindowForm.Controls.Remove($script:BornOnDateLabel)
+    $WindowForm.Controls.Remove($Script:BornOnDateText)
     $WindowForm.Controls.Remove($script:SerialNumberLabel)
     $WindowForm.Controls.Remove($script:SerialNumberText)
     $WindowForm.Controls.Remove($script:SKUNumberLabel)

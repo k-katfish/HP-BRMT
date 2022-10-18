@@ -85,11 +85,13 @@ function initializeNewLinkyButton($Text, $Location) {
     return $ButtonObject
 }
 
-function initializeNewEditableText($Text) {
+function initializeNewEditableText($Text, $Location) {
     $TextBoxObject = New-Object System.Windows.Forms.TextBox
-    $TextBoxObject.BorderStyle = "None" #?
-    $TextBoxObject.AutoSize = $true
+    $TextBoxObject.BorderStyle = 0
+    $TextBoxObject.Size = New-Object System.Drawing.Size((10 + (($Text.Length)*4)), 20)
+#    $TextBoxObject.AutoSize = $true
     $TextBoxObject.Text = $Text
+    $TextBoxObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
     
     return $TextBoxObject
 }
@@ -111,6 +113,10 @@ function initializeNewBackButton() {
     $BackButton.Text = "<- Back"
     
     return $BackButton
+}
+
+function initializeNewCheckBox($Text, $Location, $CheckedState=$false){
+    
 }
 
 function Get-GUIInput($BodyText, $TitleText) {
