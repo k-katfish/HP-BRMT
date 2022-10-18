@@ -1,6 +1,10 @@
 $script:SessionInformation 
-$script:BIOSSetupPassword
+$script:BIOSSetupPassword = ""
 $script:PSCredentialObject
+
+Add-Type -AssemblyName System.Windows.Forms
+
+Import-Module $PSScriptRoot\GUI_Helper.psm1
 
 function Get-StoredCimSession {
     return $script:SessionInformation
@@ -11,8 +15,63 @@ function Set-StoredCimSession ($SessionInfo) {
 }
 
 function Get-StoredBIOSCredential {
+    $BIOSPW = ""
+    if (-Not $script:BIOSSetupPassword) {
+        Write-Verbose "Get-StoredBIOSCredential: No credentials provided yet. Requesting BIOS Setup PW."
+        $BIOSPW = Get-GUIInput "Please enter the BIOS Password for $((Get-StoredCimSession).ComputerName)" "BIOS Password Required"
+
+        if ($BIOSPW -eq "") { 
+            Write-Verbose "User was unable to provide BIOS Password for $((Get-StoredCimSession).ComputerName), Storing empty string."
+            Set-StoredBIOSCredential ""
+            return ""
+        }
+    }
+
+    Write-Verbose "Testing BIOS Credential..."
+
+    try {
+        Set-HPBIOSSetupPassword "$script:BIOSSetupPassword" -CimSession (Get-StoredCimSession) -Password "$script:BIOSSetupPassword"
+    } catch {
+        if ($_ -like "*incorrect password*") {
+            Write-Verbose "Get-StoredBIOSCredential: Bad password provided, asking again..."
+            Set-StoredBIOSCredential (Get-StoredBIOSCredential)
+        }
+    }
+
     return $script:BIOSSetupPassword
 }
+
+function Get-StoredBIOSCredential {
+    if (-Not $script:BIOSSetupPassword -AND (Get-HPBIOSSetupPasswordIsSet -CimSession (Get-StoredCimSession))) {
+        Write-Verbose "Get-StoredBIOSCredential: No BIOS Setup PW provided yet. Requesting Password."
+        $BIOSPW = Get-GUIInput "Please enter the BIOS Password for $((Get-StoredCimSession).ComputerName)" "BIOS Password Required"
+
+        if (-Not ($BIOSPW)) { 
+            Write-Verbose "User was unable to provide BIOS Password for $((Get-StoredCimSession).ComputerName), Storing empty string."
+            Set-StoredBIOSCredential ""
+            return ""
+        }
+
+        Write-Verbose "Get-StoredBIOSCredential: Proceeding with BIOS password: $($BIOSPW)"
+
+        Write-Verbose "Get-StoredBIOSCredential: Testing BIOS Password..."
+
+        try {
+            Set-HPBIOSSetupPassword "$BIOSPW" -Password "$BIOSPW" -CimSession (Get-StoredCimSession)
+        } catch {
+            if ($_ -like "*password*") {
+                Write-Verbose "Get-StoredBIOSCredential: Bad password provided."
+                $BIOSPW = Get-StoredBIOSCredential
+            }
+        }
+
+        Set-StoredBIOSCredential $BIOSPW
+    }
+
+    Write-Verbose "Get-StoredBIOSCredential: Returning BIOS Password: $script:BIOSSetupPassword"
+    return $script:BIOSSetupPassword
+}
+
 
 function Set-StoredBIOSCredential ($BIOSSetupPW) {
     $script:BIOSSetupPassword = $BIOSSetupPW

@@ -7,8 +7,8 @@ Import-Module $PSScriptRoot\SystemInformation.psm1
 function MainMenuLoadPage() {
     $script:MainMenuPageState = "Main"
 
-    $script:SystemInformation = initializeNewLinkyButton("System Information")
-    $script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
+    $script:SystemInformation = initializeNewLinkyButton "System Information" (50, 130)
+    #$script:SystemInformation.Location = New-Object System.Drawing.Point(50, 130)
     $script:SystemInformation.Add_Click({
         ##todo
         Write-Verbose "MainMenu.ps1: SystemInformation_Click"
@@ -20,20 +20,20 @@ function MainMenuLoadPage() {
     })
     $WindowForm.Controls.Add($script:SystemInformation)
 
-    $script:SystemDiagnostic = initializeNewLinkyButton("System Diagnostic")
-    $script:SystemDiagnostic.Location = New-Object System.Drawing.Point(50, 150)
+    $script:SystemDiagnostic = initializeNewLinkyButton "System Diagnostic" (50, 150)
+    #E$script:SystemDiagnostic.Location = New-Object System.Drawing.Point
     $script:SystemDiagnostic.Enabled = $false
     # TODO - add a hover behavior saying that System Diagnostics need to be run directly from the BIOS
     $WindowForm.Controls.Add($script:SystemDiagnostic)
 
-    $script:UpdateSystemBIOS = initializeNewLinkyButton("Update System BIOS")
-    $script:UpdateSystemBIOS.Location = New-Object System.Drawing.Point(50, 170)
+    $script:UpdateSystemBIOS = initializeNewLinkyButton "Update System BIOS"  (50, 170)
+    #$script:UpdateSystemBIOS.Location = New-Object System.Drawing.Point 
     $script:UpdateSystemBIOS.Enabled = $false
     # TODO - figure out if a BIOS update can be done like this
     $WindowForm.Controls.Add($script:UpdateSystemBIOS)
 
-    $script:ChangeDateTime = initializeNewLinkyButton("Change Date and Time")
-    $script:ChangeDateTime.Location = New-Object System.Drawing.Point(50, 210)
+    $script:ChangeDateTime = initializeNewLinkyButton "Change Date and Time" (50, 210)
+    #$script:ChangeDateTime.Location = New-Object System.Drawing.Point(50, 210)
     $script:ChangeDateTime.Add_Click({
         # TODO: Add popup/changepage to set the Date and Time
         Write-Verbose "MainMenu.psm1: ChangeDateTime_Click"

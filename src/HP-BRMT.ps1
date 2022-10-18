@@ -23,16 +23,8 @@ function initializeComputerConnection{
     }
 
     try {
-        Write-Verbose "Testing if HP Bios has a password on $((Get-StoredCimSession).ComputerName)"
-        if (Get-HPBIOSSetupPasswordIsSet -CimSession (Get-StoredCimSession)) {
-            Write-Verbose "HP BIOS Password is set. Asking user for the password..."
-            $SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
-            $SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $((Get-StoredCimSession).ComputerName)", "HP BIOS Setup password required") 
-            Write-Verbose "User entered $SetupPw"
-            Set-StoredBIOSCredential $SetupPw
-        } else {
-            Write-Verbose "HP BIOS has no password setup on $((Get-StoredCimSession).ComputerName)"
-        }
+        Write-Verbose "Getting BIOS Password (if required) for $((Get-StoredCimSession).ComputerName)"
+        Get-StoredBIOSCredential
     } catch {
         if ($_ -like "*is not recognized*") {
             & "$PSScriptRoot\resources\hp-cmsl-1.6.8.exe" /VERYSILENT
@@ -79,18 +71,19 @@ $ComputerNameButton.FlatAppearance.BorderSize = 0
 $ComputerNameButton.FlatStyle = "Flat"
 $ComputerNameButton.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
 $ComputerNameButton.Add_Click({
-    $script:ComputerName = [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
-    $script:ComputerName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter the name of the computer to connect to", "Connect to another computer")
+    $NewComputerName = Get-GUIInput "Enter the name of the computer to connect to", "Connect to another computer"
 
-    Write-Verbose "User wants to connect to $script:ComputerName"
+    if ($NewComputerName) {
+        Write-Verbose "User wants to connect to $NewComputerName"
+        $script:ComputerName = $NewComputerName
+        initializeComputerConnection
 
-    initializeComputerConnection
+        $ComputerNameButton.Text = "$((Get-StoredCimSession).ComputerName)"
+        switchPage "nostate"
 
-    $ComputerNameButton.Text = "$((Get-StoredCimSession).ComputerName)"
-    switchPage "nostate"
-
-    initializeResources
-    switchPage "Main"
+        initializeResources
+        switchPage "Main"
+    }
 })
 
 $MainMenuButton.PerformClick()

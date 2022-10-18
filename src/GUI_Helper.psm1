@@ -74,8 +74,9 @@ function initializeNewBigButton($Text, $Location, $Size) {
     return $BigButton
 }
 
-function initializeNewLinkyButton($Text) {
+function initializeNewLinkyButton($Text, $Location) {
     $ButtonObject = New-Object System.Windows.Forms.Button
+    $ButtonObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
     $ButtonObject.FlatAppearance.BorderSize = 0
     $ButtonObject.FlatStyle = "Flat"
     $ButtonObject.AutoSize = $true
@@ -110,4 +111,17 @@ function initializeNewBackButton() {
     $BackButton.Text = "<- Back"
     
     return $BackButton
+}
+
+function Get-GUIInput($BodyText, $TitleText) {
+    $GuiInput = [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
+    $GuiInput = [Microsoft.VisualBasic.Interaction]::InputBox($BodyText, $TitleText)
+    Write-Debug "User Entered $GuiInput"
+
+    return $GuiInput
+}
+
+function Get-GUIConfirmation($BodyText, $TitleText, $Buttons="YesNo", $Icon="Warning") {
+    $GuiConfirm = [System.Windows.Forms.MessageBox]::Show($BodyText, $TitleText, $Buttons, $Icon)
+    return $GuiConfirm
 }
