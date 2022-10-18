@@ -26,6 +26,9 @@ function LoadSystemInformationPage() {
     $script:UUIDLabel = initializeNewStaticText "UUID" (50, 400)
     $script:UUIDText = initializeNewStaticText "$(Get-HPBIOSUUID -CimSession (Get-StoredCimSession))" (200,400)
 
+    $script:AssetTrackingNumberLabel = initializeNewStaticText "Asset Tracking Number" (50, 440)
+    $script:AssetTrackingNumberText = initializeNewStaticText "$(Get-HPBIOSSettingValue -Name "Asset Tracking Number" -CimSession (Get-StoredCimSession))" (200, 400)
+
     $script:BackButton = initializeNewBackButton
     $script:BackButton.Add_Click({
         UnloadSystemInformationPage
@@ -40,6 +43,7 @@ function LoadSystemInformationPage() {
         $script:BornOnDateLabel, $Script:BornOnDateText
         $script:SerialNumberLabel, $script:SerialNumberText
         $script:SKUNumberLabel, $script:SKUNumberText
+        $script:AssetTrackingNumberLabel, $script:AssetTrackingNumberText
         $script:UUIDLabel, $script:UUIDText))
 }
 
@@ -59,4 +63,6 @@ function UnloadSystemInformationPage() {
     $WindowForm.Controls.Remove($script:SKUNumberText)
     $WindowForm.Controls.Remove($script:UUIDLabel)
     $WindowForm.Controls.Remove($script:UUIDText)
+    $WindowForm.Controls.Remove($script:AssetTrackingNumberLabel)
+    $WindowForm.Controls.Remove($script:AssetTrackingNumberText)
 }

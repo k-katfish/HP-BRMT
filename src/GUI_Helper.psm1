@@ -88,7 +88,7 @@ function initializeNewLinkyButton($Text, $Location) {
 function initializeNewEditableText($Text, $Location) {
     $TextBoxObject = New-Object System.Windows.Forms.TextBox
     $TextBoxObject.BorderStyle = 0
-    $TextBoxObject.Size = New-Object System.Drawing.Size((10 + (($Text.Length)*4)), 20)
+    $TextBoxObject.Size = New-Object System.Drawing.Size((5+(($Text.Length)*6)), 20)
 #    $TextBoxObject.AutoSize = $true
     $TextBoxObject.Text = $Text
     $TextBoxObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
@@ -115,8 +115,14 @@ function initializeNewBackButton() {
     return $BackButton
 }
 
-function initializeNewCheckBox($Text, $Location, $CheckedState=$false){
-    
+function initializeNewCheckBox($Text, $Location, $DefaultCheckedState=$false){
+    $CheckBoxObject = New-Object System.Windows.Forms.CheckBox
+    $CheckBoxObject.AutoSize = $true
+    $CheckBoxObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
+    $CheckBoxObject.Text = $Text
+    $CheckBoxObject.Checked = $DefaultCheckedState
+
+    return $CheckBoxObject
 }
 
 function Get-GUIInput($BodyText, $TitleText) {
