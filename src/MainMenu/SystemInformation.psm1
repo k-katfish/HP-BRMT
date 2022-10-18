@@ -5,10 +5,13 @@ function LoadSystemInformationPage() {
     Write-Verbose "LoadSystemInformationPage: Setting MainMenuPageState"
     $script:MainMenuPageState = "SystemInformation"
 
-    $script:TitleLabel = initializeNewStaticText "BASIC SYSTEM INFORMATION for $((Get-StoredCimSession).ComputerName)" (50, 150)
+    $script:TitleLabel = initializeNewStaticText "SYSTEM INFORMATION for $((Get-StoredCimSession).ComputerName)" (50, 150)
 
     $script:ProductNameLabel = initializeNewStaticText "Product Name" (50, 200)
     $script:ProductNameText = initializeNewStaticText "$(Get-HPDeviceModel -CimSession (Get-StoredCimSession))" (200, 200)
+
+    $script:MemorySizeLabel = initializeNewStaticText "Memory Size" (50, 220)
+    $script:MemorySizeText = initializeNewStaticText "$([Math]::Round((Get-CimInstance -CimSession (Get-StoredCimSession) -ClassName Win32_ComputerSystem).TotalPhysicalMemory / (1024 * 1024 * 1024))) GB" (200, 220)
 
     $script:ServiceBar = initializeNewStaticText "SERVICE ------------------------------------------------------------------------" (50, 300)
     
@@ -34,6 +37,7 @@ function LoadSystemInformationPage() {
 
     $WindowForm.Controls.AddRange(@($script:BackButton, $script:TitleLabel, 
         $script:ProductNameLabel, $script:ProductNameText
+        $script:MemorySizeLabel, $script:MemorySizeText
         $script:ServiceBar
         $script:SerialNumberLabel, $script:SerialNumberText
         $script:SKUNumberLabel, $script:SKUNumberText
@@ -46,6 +50,8 @@ function UnloadSystemInformationPage() {
     $WindowForm.Controls.Remove($script:TitleLabel)
     $WindowForm.Controls.Remove($script:ProductNameLabel)
     $WindowForm.Controls.Remove($script:ProductNameText)
+    $WindowForm.Controls.Remove($script:MemorySizeLabel)
+    $WindowForm.Controls.Remove($script:MemorySizeText)
     $WindowForm.Controls.Remove($script:ServiceBar)
     $WindowForm.Controls.Remove($script:SerialNumberLabel)
     $WindowForm.Controls.Remove($script:SerialNumberText)

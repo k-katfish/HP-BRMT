@@ -6,45 +6,7 @@ param(
 
 $script:ComputerName = $ComputerName
 
-function GetCreds {
-    param([PSCredential]$Credential)
-    Write-Host "GetCreds: Called with: $($Credential.Username)"
-
-    if (-Not $Credential) {
-        Write-Host "GetCreds: No credentials provided. Requesting credentials."
-        $CredMessage = "Please provide valid credentials."
-        $user = "$env:UserDomain\$env:USERNAME"
-        $Credential = Get-Credential -Message $CredMessage -UserName $user
-          if (-Not $Credential) {
-            Write-Verbose "GetCreds: User probably clicked Cancel."
-            return -1
-        }
-        Write-Host "GetCreds: Proceeding with PSCredential Object with username: $($Credential.Username)"
-    }
-
-    Write-Verbose "GetCreds: Testing PSCredential Object..."
-
-    try {
-        Start-Process Powershell -ArgumentList "return 0" -Credential $Credential -WorkingDirectory 'C:\Windows\System32' -NoNewWindow
-    } catch {
-        if ($_ -like "*password*") {
-            Write-Verbose "GetCred: Bad password provided."
-            Start-Process Powershell -ArgumentList "Add-Type -AssemblyName System.Windows.Forms;",
-            "[System.Windows.Forms.MessageBox]::Show('Bad Password! Try again!','Uh-oh.')" -WindowStyle Hidden
-            $Credential = GetCreds
-        } elseif ($_ -like "*is not null or empty*") {
-            Write-Verbose "GetCred: No password provided."
-            $OKC = Start-Process Powershell -ArgumentList "Add-Type -AssemblyName System.Windows.Forms;",
-            "[System.Windows.Forms.MessageBox]::Show('Please enter a password. Click Cancel to cancel the operation.','Whoopsie.',OKCancel)" -WindowStyle Hidden
-            if ($OKC -eq "Cancel") { return -1 }
-            $Credential = GetCreds
-        }
-    }
-
-    Write-Verbose "GetCreds: Returning Credential Object: $($Credential.Username)"
-    return $Credential
-}
-
+if (Get-Module SessionHelper) {Remove-Module SessionHelper}
 Import-Module $PSScriptRoot\SessionHelper.psm1
 
 function initializeComputerConnection{
@@ -53,27 +15,23 @@ function initializeComputerConnection{
     if (-Not ((Get-StoredCimSession).ComputerName -eq $script:ComputerName)) {
         if (Get-StoredCimSession) { Remove-CimSession (Get-StoredCimSession) }
         try {
-            $script:Credential = GetCreds -Credential $script:Credential
-            if ($script:Credential -eq -1) {
-                throw "Bad credentials"
-            }
-            Set-StoredCIMSession (New-CimSession $script:ComputerName -Credential $script:Credential -Authentication Kerberos)
+            Set-StoredCIMSession (New-CimSession $script:ComputerName -Credential (Get-StoredPSCredential) -Authentication Kerberos)
         } catch {
-            Write-Error "Unable to create a PSSession with $script:ComputerName. Is this a real computer, and is it online?"
+            Write-Error "Unable to create a PSSession with $script:ComputerName. Is this a real computer, and is it online, or did you maybe provide a bad password?"
             Write-Error $_
         }
     }
 
     try {
-        Write-Verbose "Testing if HP Bios has a password on $($script:PSSessionInformation.ComputerName)"
-        if (Get-HPBIOSSetupPasswordIsSet -CimSession $script:PSSessionInformation) {
+        Write-Verbose "Testing if HP Bios has a password on $((Get-StoredCimSession).ComputerName)"
+        if (Get-HPBIOSSetupPasswordIsSet -CimSession (Get-StoredCimSession)) {
             Write-Verbose "HP BIOS Password is set. Asking user for the password..."
-            $script:SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
-            $script:SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $($script:PSSessionInformation.ComputerName)", "HP BIOS Setup password required") 
-            Write-Verbose "User entered $script:SetupPw"
-            Write-Information "User entered $script:SetupPw"
+            $SetupPw= [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
+            $SetupPw= [Microsoft.VisualBasic.Interaction]::InputBox("Enter HP BIOS Setup Password for $((Get-StoredCimSession).ComputerName)", "HP BIOS Setup password required") 
+            Write-Verbose "User entered $SetupPw"
+            Set-StoredBIOSCredential $SetupPw
         } else {
-            Write-Verbose "HP BIOS has no password setup on $script:ComputerName"
+            Write-Verbose "HP BIOS has no password setup on $((Get-StoredCimSession).ComputerName)"
         }
     } catch {
         if ($_ -like "*is not recognized*") {
@@ -116,9 +74,10 @@ $AdvancedMenuButton.Add_Click({ switchPage "Advanced" })
 $UEFIMenuButton = initializeNewBigButton "UEFI Drivers" (450, 50) (200, 50)
 $UEFIMenuButton.Add_Click({ switchPage "UEFI" })
 
-$ComputerNameButton = initializeNewBigButton "$script:ComputerName" (600, 50) (200, 50)
+$ComputerNameButton = initializeNewBigButton "$script:ComputerName" (600, 50) (400, 50)
 $ComputerNameButton.FlatAppearance.BorderSize = 0
 $ComputerNameButton.FlatStyle = "Flat"
+$ComputerNameButton.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
 $ComputerNameButton.Add_Click({
     $script:ComputerName = [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
     $script:ComputerName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter the name of the computer to connect to", "Connect to another computer")
