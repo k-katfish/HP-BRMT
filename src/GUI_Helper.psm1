@@ -64,7 +64,7 @@ function switchPage($Page) {
     $script:PageState = $Page
 }
 
-function initializeNewBigButton($Text, $Location, $Size) {
+function New-BigButton($Text, $Location, $Size) {
     $BigButton = New-Object System.Windows.Forms.Button
     $BigButton.Size = New-Object System.Drawing.Size($Size[0], $Size[1]) #New-Object System.Drawing.Size(150, 50)
     $BigButton.Font = New-Object System.Drawing.Font("Arial", 15)
@@ -74,7 +74,7 @@ function initializeNewBigButton($Text, $Location, $Size) {
     return $BigButton
 }
 
-function initializeNewLinkyButton($Text, $Location) {
+function New-LinkyText($Text, $Location) {
     $ButtonObject = New-Object System.Windows.Forms.Button
     $ButtonObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
     $ButtonObject.FlatAppearance.BorderSize = 0
@@ -85,7 +85,7 @@ function initializeNewLinkyButton($Text, $Location) {
     return $ButtonObject
 }
 
-function initializeNewEditableText($Text, $Location) {
+function New-EditableText($Text, $Location) {
     $TextBoxObject = New-Object System.Windows.Forms.TextBox
     $TextBoxObject.BorderStyle = 0
     $TextBoxObject.Size = New-Object System.Drawing.Size((5+(($Text.Length)*6)), 20)
@@ -96,7 +96,7 @@ function initializeNewEditableText($Text, $Location) {
     return $TextBoxObject
 }
 
-function initializeNewStaticText($Text, $Location) {
+function New-StaticText($Text, $Location) {
     $LabelObject = New-Object System.Windows.Forms.Label
     $LabelObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
     $LabelObject.AutoSize = $true
@@ -105,7 +105,7 @@ function initializeNewStaticText($Text, $Location) {
     return $LabelObject
 }
 
-function initializeNewBackButton() {
+function New-BackButton() {
     $BackButton = New-Object System.Windows.Forms.Button
     $BackButton.AutoSize = $true #.Size = New-Object System.Drawing.Size(50, 100) #New-Object System.Drawing.Size(150, 50)
     $BackButton.Font = New-Object System.Drawing.Font("Arial", 10)
@@ -115,7 +115,7 @@ function initializeNewBackButton() {
     return $BackButton
 }
 
-function initializeNewCheckBox($Text, $Location, $DefaultCheckedState=$false){
+function New-CheckBox($Text, $Location, $DefaultCheckedState=$false){
     $CheckBoxObject = New-Object System.Windows.Forms.CheckBox
     $CheckBoxObject.AutoSize = $true
     $CheckBoxObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
@@ -123,6 +123,14 @@ function initializeNewCheckBox($Text, $Location, $DefaultCheckedState=$false){
     $CheckBoxObject.Checked = $DefaultCheckedState
 
     return $CheckBoxObject
+}
+
+function New-DropdownMenu($Location) {
+    $ComboBoxObject = New-Object System.Windows.Forms.ComboBox
+    $ComboBoxObject.Location = New-Object System.Drawing.Point($Location[0], $Location[1])
+    $ComboBoxObject.Size = New-Object System.Drawing.Size(200, 30)
+
+    return $ComboBoxObject
 }
 
 function Get-GUIInput($BodyText, $TitleText) {

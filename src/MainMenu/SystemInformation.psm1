@@ -4,32 +4,32 @@ function LoadSystemInformationPage() {
     Write-Verbose "SystemInformation.psm1: LoadSystemInformationPage called."
     Write-Verbose "LoadSystemInformationPage: Setting MainMenuPageState"
 
-    $script:TitleLabel = initializeNewStaticText "SYSTEM INFORMATION for $((Get-StoredCimSession).ComputerName)" (50, 150)
+    $script:TitleLabel = New-StaticText "SYSTEM INFORMATION for $((Get-StoredCimSession).ComputerName)" (50, 150)
 
-    $script:ProductNameLabel = initializeNewStaticText "Product Name" (50, 200)
-    $script:ProductNameText = initializeNewStaticText "$(Get-HPDeviceModel -CimSession (Get-StoredCimSession))" (200, 200)
+    $script:ProductNameLabel = New-StaticText "Product Name" (50, 200)
+    $script:ProductNameText = New-StaticText "$(Get-HPDeviceModel -CimSession (Get-StoredCimSession))" (200, 200)
 
-    $script:MemorySizeLabel = initializeNewStaticText "Memory Size" (50, 220)
-    $script:MemorySizeText = initializeNewStaticText "$([Math]::Round((Get-CimInstance -CimSession (Get-StoredCimSession) -ClassName Win32_ComputerSystem).TotalPhysicalMemory / (1024 * 1024 * 1024))) GB" (200, 220)
+    $script:MemorySizeLabel = New-StaticText "Memory Size" (50, 220)
+    $script:MemorySizeText = New-StaticText "$([Math]::Round((Get-CimInstance -CimSession (Get-StoredCimSession) -ClassName Win32_ComputerSystem).TotalPhysicalMemory / (1024 * 1024 * 1024))) GB" (200, 220)
 
-    $script:ServiceBar = initializeNewStaticText "SERVICE ------------------------------------------------------------------------" (50, 300)
+    $script:ServiceBar = New-StaticText "SERVICE ------------------------------------------------------------------------" (50, 300)
     
-    $script:BornOnDateLabel = initializeNewStaticText "Born on Date" (50, 340)
-    $Script:BornOnDateText = initializeNewStaticText "$(Get-HPBiosSettingValue -CimSession (Get-StoredCimSession) -Name "Born On Date")" (200, 340)
+    $script:BornOnDateLabel = New-StaticText "Born on Date" (50, 340)
+    $Script:BornOnDateText = New-StaticText "$(Get-HPBiosSettingValue -CimSession (Get-StoredCimSession) -Name "Born On Date")" (200, 340)
 
-    $script:SerialNumberLabel = initializeNewStaticText "Serial Number" (50, 360)
-    $script:SerialNumberText = initializeNewStaticText "$(Get-HPDeviceSerialNumber -CimSession (Get-StoredCimSession))" (200, 360)
+    $script:SerialNumberLabel = New-StaticText "Serial Number" (50, 360)
+    $script:SerialNumberText = New-StaticText "$(Get-HPDeviceSerialNumber -CimSession (Get-StoredCimSession))" (200, 360)
 
-    $script:SKUNumberLabel = initializeNewStaticText "SKU Number" (50, 380)
-    $script:SKUNumberText = initializeNewStaticText "$(Get-HPDevicePartNumber -CimSession (Get-StoredCimSession))" (200, 380)
+    $script:SKUNumberLabel = New-StaticText "SKU Number" (50, 380)
+    $script:SKUNumberText = New-StaticText "$(Get-HPDevicePartNumber -CimSession (Get-StoredCimSession))" (200, 380)
 
-    $script:UUIDLabel = initializeNewStaticText "UUID" (50, 400)
-    $script:UUIDText = initializeNewStaticText "$(Get-HPBIOSUUID -CimSession (Get-StoredCimSession))" (200,400)
+    $script:UUIDLabel = New-StaticText "UUID" (50, 400)
+    $script:UUIDText = New-StaticText "$(Get-HPBIOSUUID -CimSession (Get-StoredCimSession))" (200,400)
 
-    $script:AssetTrackingNumberLabel = initializeNewStaticText "Asset Tracking Number" (50, 440)
-    $script:AssetTrackingNumberText = initializeNewStaticText "$(Get-HPBIOSSettingValue -Name "Asset Tracking Number" -CimSession (Get-StoredCimSession))" (200, 400)
+    $script:AssetTrackingNumberLabel = New-StaticText "Asset Tracking Number" (50, 440)
+    $script:AssetTrackingNumberText = New-StaticText "$(Get-HPBIOSSettingValue -Name "Asset Tracking Number" -CimSession (Get-StoredCimSession))" (200, 400)
 
-    $script:BackButton = initializeNewBackButton
+    $script:BackButton = New-BackButton
     $script:BackButton.Add_Click({
         UnloadSystemInformationPage
         Import-Module $PSScriptRoot\MainMenu.psm1 -Function MainMenuReloadPageItems

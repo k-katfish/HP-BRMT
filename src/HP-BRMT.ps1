@@ -6,7 +6,6 @@ param(
 
 $script:ComputerName = $ComputerName
 
-if (Get-Module SessionHelper) {Remove-Module SessionHelper}
 Import-Module $PSScriptRoot\SessionHelper.psm1
 
 function initializeComputerConnection{
@@ -17,6 +16,7 @@ function initializeComputerConnection{
         try {
             Set-StoredCIMSession (New-CimSession $script:ComputerName -Credential (Get-StoredPSCredential) -Authentication Kerberos)
         } catch {
+            if ($_ -like "*not this computer*") { }# do something }
             Write-Error "Unable to create a PSSession with $script:ComputerName. Is this a real computer, and is it online, or did you maybe provide a bad password?"
             Write-Error $_
         }
@@ -53,20 +53,20 @@ $WindowForm.MaximizeBox = $false
 
 # Main/Security/Advanced/UEFI Drivers Region
 
-$MainMenuButton = initializeNewBigButton "Main" (50, 50) (100, 50)
+$MainMenuButton = New-BigButton "Main" (50, 50) (100, 50)
 $MainMenuButton.Add_Click({ switchPage "Main" })
 
-$SecurityMenuButton = initializeNewBigButton "Security" (150, 50) (150, 50)
+$SecurityMenuButton = New-BigButton "Security" (150, 50) (150, 50)
 $SecurityMenuButton.Add_Click({ switchPage "Security" })
 
 
-$AdvancedMenuButton = initializeNewBigButton "Advanced" (300, 50) (150, 50)
+$AdvancedMenuButton = New-BigButton "Advanced" (300, 50) (150, 50)
 $AdvancedMenuButton.Add_Click({ switchPage "Advanced" })
 
-$UEFIMenuButton = initializeNewBigButton "UEFI Drivers" (450, 50) (200, 50)
+$UEFIMenuButton = New-BigButton "UEFI Drivers" (450, 50) (200, 50)
 $UEFIMenuButton.Add_Click({ switchPage "UEFI" })
 
-$ComputerNameButton = initializeNewBigButton "$script:ComputerName" (600, 50) (400, 50)
+$ComputerNameButton = New-BigButton "$script:ComputerName" (600, 50) (400, 50)
 $ComputerNameButton.FlatAppearance.BorderSize = 0
 $ComputerNameButton.FlatStyle = "Flat"
 $ComputerNameButton.TextAlign = [System.Drawing.ContentAlignment]::MiddleRight
@@ -119,3 +119,10 @@ $RightClickMenu.Items.Add($ReloadModules)
 $WindowForm.ContextMenuStrip = $RightClickMenu
 
 $WindowForm.ShowDialog()
+
+if (Get-Module GUI_Helper) { Remove-Module GUI_Helper }
+if (Get-Module MainMenu) { Remove-Module MainMenu }
+if (Get-Module SecurityMenu) { Remove-Module SecurityMenu }
+if (Get-Module AdvancedMenu) { Remove-Module AdvancedMenu }
+if (Get-Module UEFIMenu) { Remove-Module UEFIMenu }
+if (Get-Module SessionHelper) { Remove-Module SessionHelper }

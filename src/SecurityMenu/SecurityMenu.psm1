@@ -2,14 +2,14 @@ Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
 function SecurityMenuLoadPage() {
-    $script:AdminToolsHeader = initializeNewStaticText "Administrator Tools" (50, 120)
+    $script:AdminToolsHeader = New-StaticText "Administrator Tools" (50, 120)
 
-    $script:CreateBIOSSetupPasswordButton = initializeNewLinkyButton "Manage BIOS Setup Password" (50, 140)
+    $script:CreateBIOSSetupPasswordButton = New-LinkyText "Manage BIOS Setup Password" (50, 140)
     $script:CreateBIOSSetupPasswordButton.Add_Click({
         ManageBIOSSetupPassword
     })
     
-    $script:CreatePOSTPasswordButton = initializeNewLinkyButton "Manage POST Power-On Password" (50, 160)
+    $script:CreatePOSTPasswordButton = New-LinkyText "Manage POST Power-On Password" (50, 160)
     $script:CreatePOSTPasswordButton.Add_Click({
         ManagePOSTPassword
     })

@@ -106,6 +106,8 @@ function Get-StoredPSCredential {
                 "[System.Windows.Forms.MessageBox]::Show('Please enter a password. Click Cancel to cancel the operation.','Whoopsie.',OKCancel)" -WindowStyle Hidden
                 if ($OKC -eq "Cancel") { return -1 }
                 $Credential = Get-StoredPSCredential
+            } else {
+                throw $_
             }
         }
 
